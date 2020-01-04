@@ -6,6 +6,11 @@
     "deprecation": {
       "severity": "warning"
     },
+    "variable-name": {
+      "options": [
+      "allow-leading-underscore"
+      ]
+    },
     "component-class-suffix": true,
     "contextual-lifecycle": true,
     "directive-class-suffix": true,

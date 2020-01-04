@@ -5,8 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ProEvents.WebApi.Data;
-using ProEvents.WebApi.Model;
+using Project.Repository;
 
 namespace ProEvents.WebApi.Controllers
 {
@@ -14,8 +13,8 @@ namespace ProEvents.WebApi.Controllers
     [ApiController]
     public class ValuesController : ControllerBase
     {
-        public readonly DataContext _context;
-        public ValuesController(DataContext context)
+        public readonly ProjectContext _context;
+        public ValuesController(ProjectContext context)
         {
             _context = context;
         }
@@ -44,7 +43,7 @@ namespace ProEvents.WebApi.Controllers
         {
             try
             {
-                var results = await  _context.Eventos.FirstOrDefaultAsync(x => x.EventoId == id);
+                var results = await  _context.Eventos.FirstOrDefaultAsync(x => x.Id == id);
 
                 return Ok(results);
                  

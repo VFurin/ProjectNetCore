@@ -10,9 +10,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using ProEvents.WebApi.Data;
 
 using Microsoft.EntityFrameworkCore;
+using Project.Repository;
 
 namespace ProEvents.WebApi
 {
@@ -28,7 +28,10 @@ namespace ProEvents.WebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<DataContext>(x => x.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddDbContext<ProjectContext>(
+                x => x.UseSqlite(Configuration.GetConnectionString("DefaultConnection"))
+            );
+            services.AddScoped<IProjectRepository, ProjectRepository>();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.AddCors();
         }
@@ -48,6 +51,7 @@ namespace ProEvents.WebApi
 
             //app.UseHttpsRedirection();
             app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+            app.UseStaticFiles();
             app.UseMvc();
         }
     }
