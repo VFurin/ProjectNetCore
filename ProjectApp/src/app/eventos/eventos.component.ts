@@ -110,7 +110,7 @@ export class EventosComponent implements OnInit {
 
   salvarAlteracao(template) {
     if (this.registerForm.valid) {
-      if (this.modSave === 'post'){
+      if (this.modSave === 'post') {
         this.evento = Object.assign({}, this.registerForm.value);
         this.eventoService.postevento(this.evento).subscribe(
           (novoEvento: Evento) => {

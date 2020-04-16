@@ -13,6 +13,7 @@ using Microsoft.Extensions.Options;
 
 using Microsoft.EntityFrameworkCore;
 using Project.Repository;
+using AutoMapper;
 
 namespace ProEvents.WebApi
 {
@@ -32,6 +33,7 @@ namespace ProEvents.WebApi
                 x => x.UseSqlite(Configuration.GetConnectionString("DefaultConnection"))
             );
             services.AddScoped<IProjectRepository, ProjectRepository>();
+            services.AddAutoMapper();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.AddCors();
         }
