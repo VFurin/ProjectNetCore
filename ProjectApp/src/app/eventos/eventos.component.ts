@@ -4,6 +4,7 @@ import { Evento } from '../_models/Evento';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap';
 import { FormGroup, Validators, FormBuilder } from '@angular/forms';
 import { defineLocale, BsLocaleService, ptBrLocale } from 'ngx-bootstrap';
+import { ToastrService } from 'ngx-toastr';
 defineLocale('pt-br', ptBrLocale);
 
 @Component({
@@ -13,6 +14,8 @@ defineLocale('pt-br', ptBrLocale);
 })
 
 export class EventosComponent implements OnInit {
+
+  titulo = 'Eventos';
 
   eventosFiltrados: Evento[];
   eventos: Evento[];
@@ -26,13 +29,16 @@ export class EventosComponent implements OnInit {
   registerForm: FormGroup;
   bodyDeletarEvento = '';
 
+  file: File;
+
   _filtroLista = '';
 
   constructor(
      private eventoService: EventoService,
      private modalService: BsModalService,
      private fb: FormBuilder,
-     private localeService: BsLocaleService
+     private localeService: BsLocaleService,
+     private toastr: ToastrService
   ) {
     this.localeService.use('pt-br');
   }
@@ -48,8 +54,9 @@ export class EventosComponent implements OnInit {
   editEvento(evento: Evento, template: any) {
     this.modSave = 'put';
     this.openModal(template);
-    this.evento = evento;
-    this.registerForm.patchValue(evento);
+    this.evento = Object.assign({}, evento);
+    this.evento.imagemURL = '';
+    this.registerForm.patchValue(this.evento);
   }
 
   newEvento(template: any) {
@@ -73,8 +80,9 @@ export class EventosComponent implements OnInit {
       () => {
           template.hide();
           this.getEventos();
+          this.toastr.success('Deletado com Secesso!');
         }, error => {
-          console.log(error);
+          this.toastr.error(`Erro ao Deletar: ${error}`);
         }
     );
   }
@@ -108,26 +116,52 @@ export class EventosComponent implements OnInit {
     });
   }
 
+  onFileChange(event) {
+    const reader = new FileReader();
+
+    if (event.target.files && event.target.files.length) {
+      this.file = event.target.files;
+
+      console.log(this.file);
+    }
+  }
+
+  uploadImagem() {
+    const nomeArquivo = this.evento.imagemURL.split('\\', 3);
+    this.evento.imagemURL = nomeArquivo[2];
+
+    this.eventoService.postUpload(this.file, nomeArquivo[2]).subscribe();
+
+  }
+
   salvarAlteracao(template) {
     if (this.registerForm.valid) {
       if (this.modSave === 'post') {
         this.evento = Object.assign({}, this.registerForm.value);
+
+        this.uploadImagem();
+
         this.eventoService.postevento(this.evento).subscribe(
           (novoEvento: Evento) => {
             template.hide();
             this.getEventos();
+            this.toastr.success('Inserido com Secesso!');
           }, error => {
-            console.log(error);
+            this.toastr.error(`Erro ao Inserir: ${error}`);
           }
         );
       } else {
         this.evento = Object.assign({id: this.evento.id}, this.registerForm.value);
+
+        this.uploadImagem();
+
         this.eventoService.putevento(this.evento).subscribe(
           () => {
             template.hide();
             this.getEventos();
+            this.toastr.success('Editado com Secesso!');
           }, error => {
-            console.log(error);
+            this.toastr.error(`Erro ao Editar: ${error}`);
           }
         );
       }
@@ -138,9 +172,10 @@ export class EventosComponent implements OnInit {
     this.eventoService.getAllEvento().subscribe(
       (_eventos: Evento[]) => {
       this.eventos = _eventos;
+      console.log('Eventos', this.eventos);
       this.eventosFiltrados = this.eventos;
       }, error => {
-        console.log(error);
+        this.toastr.error(`Erro ao tentar Carregar eventos: ${error}`);
       }
     );
   }
